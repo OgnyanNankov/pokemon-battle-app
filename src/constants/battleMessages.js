@@ -1,0 +1,7 @@
+ export const BATTLE_MESSAGES = {
+    NO_BATTLE_YET: "Load a Pokémon to begin!",
+    TYPE_MATCH: "TYPE MATCH!",
+    NEW_WINS: "NEW POKÉMON WINS!",
+    PREVIOUS_WINS: "PREVIOUS POKÉMON WINS!",
+    NO_ADVANTAGE: "NO ADVANTAGE",
+};
