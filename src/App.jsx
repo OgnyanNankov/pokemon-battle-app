@@ -1,7 +1,12 @@
-import { useState } from "react";
-import { getRandomPokemon } from "./services/pokemonService";
-import { BATTLE_MESSAGES } from "./constants/battleMessages";
+import { useState, useCallback, useMemo } from "react";
 import "./App.css";
+import { getRandomPokemon, getTypeByName } from "./services/pokemonService";
+import { BATTLE_MESSAGES } from "./constants/battleMessages";
+import { determineBattleResult, updateCounters } from "./utils/battleUtils";
+import LoadPokemonButton from "./components/LoadPokemonButton/LoadPokemonButton";
+import BattleResult from "./components/BattleResult/BattleResult";
+import CountersPanel from "./components/CountersPanel/CountersPanel";
+import { BattleArena } from "./components/BattleArena/BattleArena";
 
 function App() {
   const [previousPokemon, setPreviousPokemon] = useState(null);
@@ -11,83 +16,98 @@ function App() {
   const [battleResult, setBattleResult] = useState(
     BATTLE_MESSAGES.NO_BATTLE_YET,
   );
+  const [counters, setCounters] = useState({
+    typeMatches: 0,
+    newWins: 0,
+    previousWins: 0,
+  });
 
-  const handleLoadPokemon = async () => {
+  const battleStatsSummary = useMemo(() => {
+    const totalBattles =
+      counters.typeMatches + counters.newWins + counters.previousWins;
+
+    let leader = "No leader yet";
+
+    if (counters.newWins > counters.previousWins) {
+      leader = "New Pokémon is leading";
+    } else if (counters.previousWins > counters.newWins) {
+      leader = "Previous Pokémon is leading";
+    } else if (counters.newWins > 0 || counters.previousWins > 0) {
+      leader = "The battle is tied";
+    }
+
+    return {
+      totalBattles,
+      leader,
+    };
+  }, [counters]);
+
+  const handleLoadPokemon = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
-      const pokemon = await getRandomPokemon();
-      console.log("Loaded Pokémon:", pokemon);
+      const newPokemon = await getRandomPokemon();
+      // console.log("Loaded Pokémon:", newPokemon);   - Added for testing purposes
 
-      setPreviousPokemon(currentPokemon);
-      setCurrentPokemon(pokemon);
-      setBattleResult(BATTLE_MESSAGES.NO_BATTLE_YET);
+      if (!currentPokemon) {
+        setCurrentPokemon(newPokemon);
+        setBattleResult(BATTLE_MESSAGES.NO_BATTLE_YET);
+        return;
+      }
+
+      const newPreviousPokemon = currentPokemon;
+      const newCurrentPokemon = newPokemon;
+
+      const [previousTypeData, currentTypeData] = await Promise.all([
+        getTypeByName(newPreviousPokemon.primaryType),
+        getTypeByName(newCurrentPokemon.primaryType),
+      ]);
+
+      // console.log("Previous type data:", previousTypeData);   - Added for testing purposes
+      // console.log("Current type data:", currentTypeData);
+
+      const result = determineBattleResult(
+        newPreviousPokemon,
+        newCurrentPokemon,
+        previousTypeData,
+        currentTypeData,
+      );
+
+      setCounters((prevCounters) => updateCounters(prevCounters, result));
+
+      setPreviousPokemon(newPreviousPokemon);
+      setCurrentPokemon(newCurrentPokemon);
+      setBattleResult(result);
     } catch (err) {
       console.error("Failed to load Pokémon:", err);
       setError("Failed to load Pokémon. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPokemon]);
 
   return (
     <main className="app-container">
       <h1>Pokémon Battle App</h1>
 
-      <button onClick={handleLoadPokemon} disabled={loading}>
-        {loading ? "Loading..." : "Load Random Pokémon"}
-      </button>
+      <LoadPokemonButton loading={loading} onClick={handleLoadPokemon} />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <p>{battleResult}</p>
+      <BattleResult result={battleResult} />
 
-      <section className="pokemon-container">
-        <div>
-          <h2>Previous Pokémon</h2>
+      <CountersPanel counters={counters} />
 
-          {previousPokemon ? (
-            <>
-              <h2>{previousPokemon.name}</h2>
+      <div>
+        <p>Total counted battles: {battleStatsSummary.totalBattles}</p>
+        <p>{battleStatsSummary.leader}</p>
+      </div>
 
-              <img
-                src={previousPokemon.image}
-                alt={previousPokemon.name}
-                width="150"
-              />
-
-              <p>Height: {previousPokemon.height}</p>
-              <p>Weight: {previousPokemon.weight}</p>
-              <p>Types: {previousPokemon.types.join(", ")}</p>
-              <p>Primary Type: {previousPokemon.primaryType}</p>
-            </>
-          ) : (
-            <p>No Previous Pokémon</p>
-          )}
-        </div>
-
-        <div>
-          <h2>Current Pokémon</h2>
-
-          {currentPokemon && (
-            <>
-              <h2>{currentPokemon.name}</h2>
-
-              <img
-                src={currentPokemon.image}
-                alt={currentPokemon.name}
-                width="150"
-              />
-
-              <p>Height: {currentPokemon.height}</p>
-              <p>Weight: {currentPokemon.weight}</p>
-              <p>Types: {currentPokemon.types.join(", ")}</p>
-              <p>Primary Type: {currentPokemon.primaryType}</p>
-            </>
-          )}
-        </div>
-      </section>
+      <BattleArena
+        previousPokemon={previousPokemon}
+        currentPokemon={currentPokemon}
+      />
     </main>
   );
 }

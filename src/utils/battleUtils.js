@@ -1,12 +1,17 @@
 import { BATTLE_MESSAGES } from "../constants/battleMessages";
 
+// Аdded a guard clause in the type advantage function to prevent runtime errors in case the API response is incomplete or undefined. This ensures the application fails gracefully instead of crashing.
 export function hasTypeAdvantage(typeData, targetType) {
-    return typeData.damage.relations.double_damage_to.some(
-        (item) => item.name === targetType,
+    if (!typeData || !typeData.damage_relations) {
+        return false;
+    }
+
+    return typeData.damage_relations.double_damage_to.some(
+        (item) => item.name === targetType
     );
 }
 
-export function determineBattleResults(
+export function determineBattleResult(
     previousPokemon,
     currentPokemon,
     previousTypeData,
@@ -49,7 +54,7 @@ export function updateCounters(counters, battleResult) {
         case BATTLE_MESSAGES.PREVIOUS_WINS:
             return {
                 ...counters,
-                npreviousWins: counters.previousWins + 1,
+                previousWins: counters.previousWins + 1,
             };
 
         default:
