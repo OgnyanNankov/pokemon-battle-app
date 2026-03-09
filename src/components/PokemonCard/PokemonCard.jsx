@@ -1,8 +1,7 @@
-function PokemonCard({ title, pokemon }) {
+export default function PokemonCard({ title, pokemon }) {
   return (
-    <div>
+    <div className="pokemon-card">
       <h2>{title}</h2>
-
       <h3>{pokemon.name}</h3>
 
       <img src={pokemon.image} alt={pokemon.name} width="150" />
@@ -15,4 +14,3 @@ function PokemonCard({ title, pokemon }) {
   );
 }
 
-export default PokemonCard;

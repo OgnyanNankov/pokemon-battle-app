@@ -1,6 +1,6 @@
 export default function LoadPokemonButton({ loading, onClick }) {
   return (
-    <button onClick={onClick} disabled={loading}>
+    <button className="load-button" onClick={onClick} disabled={loading}>
       {loading ? "Loading..." : "Load Random Pokémon"}
     </button>
   );

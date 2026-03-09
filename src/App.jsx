@@ -48,7 +48,6 @@ function App() {
 
     try {
       const newPokemon = await getRandomPokemon();
-      // console.log("Loaded Pokémon:", newPokemon);   - Added for testing purposes
 
       if (!currentPokemon) {
         setCurrentPokemon(newPokemon);
@@ -63,9 +62,6 @@ function App() {
         getTypeByName(newPreviousPokemon.primaryType),
         getTypeByName(newCurrentPokemon.primaryType),
       ]);
-
-      // console.log("Previous type data:", previousTypeData);   - Added for testing purposes
-      // console.log("Current type data:", currentTypeData);
 
       const result = determineBattleResult(
         newPreviousPokemon,
@@ -91,15 +87,17 @@ function App() {
     <main className="app-container">
       <h1>Pokémon Battle App</h1>
 
-      <LoadPokemonButton loading={loading} onClick={handleLoadPokemon} />
+      <div className="battle-controls">
+        <LoadPokemonButton loading={loading} onClick={handleLoadPokemon} />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
-      <BattleResult result={battleResult} />
+        <BattleResult result={battleResult} />
+      </div>
 
       <CountersPanel counters={counters} />
 
-      <div>
+      <div className="summary-box">
         <p>Total counted battles: {battleStatsSummary.totalBattles}</p>
         <p>{battleStatsSummary.leader}</p>
       </div>
