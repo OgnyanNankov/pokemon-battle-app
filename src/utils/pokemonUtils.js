@@ -1,9 +1,9 @@
-export default function mapPokemondata(data) {
+export function mapPokemonData(data) {
     return {
         id: data.id,
         name: data.name,
         image: data.sprites.front_default,
-        heiht: data.height,
+        height: data.height,
         weight: data.weight,
         types: data.types
             .sort((a, b) => a.slot - b.slot)
