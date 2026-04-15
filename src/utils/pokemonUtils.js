@@ -1,3 +1,4 @@
+// Convert raw JSON to object with the needed data
 export function mapPokemonData(data) {
     return {
         id: data.id,

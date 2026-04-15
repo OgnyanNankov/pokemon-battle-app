@@ -1,8 +1,8 @@
+// Business and decision logic - who wins the battle
 import { BATTLE_MESSAGES } from "../constants/battleMessages";
 
-// Аdded a guard clause in the type advantage function to prevent runtime errors in case the API response is incomplete or undefined. This ensures the application fails gracefully instead of crashing.
-export function hasTypeAdvantage(typeData, targetType) {
-    if (!typeData || !typeData.damage_relations) {
+export function hasTypeAdvantage(typeData, targetType) {                                                   // Аdded a guard clause in the type advantage function to prevent runtime errors in case the API response is incomplete or undefined. This ensures the application fails gracefully instead of crashing.            
+    if (!typeData || !typeData.damage_relations) {                                                         // Can given type win against given target type 
         return false;
     }
 
@@ -33,7 +33,7 @@ export function determineBattleResult(
         return BATTLE_MESSAGES.PREVIOUS_WINS;
     }
 
-    return BATTLE_MESSAGES.NO_ADVANTAGE
+    return BATTLE_MESSAGES.NO_ADVANTAGE;
 
 }
 
@@ -59,7 +59,5 @@ export function updateCounters(counters, battleResult) {
 
         default:
             return counters;
-
-
     }
 }

@@ -1,3 +1,4 @@
+// Battle stats
 export default function CountersPanel({ counters }) {
   return (
     <div className="counters">
